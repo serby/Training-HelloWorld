@@ -5,11 +5,23 @@ var
 
 function createRouter(basePath) {
 
+	function notFound(res, url) {
+
+		res.end(url + ' not found', 404);
+	}
+
 	return function (req, res) {
 
 		var urlParts = url.parse(req.url)	;
 
 		fs.readFile(basePath + '/' + urlParts.pathname, function (err, data) {
+
+			if (err) {
+				switch(err.code) {
+					case 'ENOENT':
+						return notFound(res, req.url);
+				}
+			}
 
 			res.writeHead(200, {
 				'Content-Length': data.length,
